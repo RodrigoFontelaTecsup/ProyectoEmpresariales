@@ -1,9 +1,41 @@
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import reservorio from '../img/reservorio.png';
+import axios from 'axios';
+import { useState } from 'react';
 
 export function Register() {
+  const client = axios.create({
+    baseURL: 'http://127.0.0.1:8000',
+  });
+
+  const navigate = useNavigate();
+  
+  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  function submitRegistration(e) {
+    e.preventDefault();
+    client
+      .post('/api/register/', {
+        email: email,
+        username: username,
+        password: password,
+      })
+      .then(function (res) {
+        client
+          .post('/api/login/', {
+            email: email,
+            password: password,
+          })
+          .then(function (res) {
+            navigate('/home');
+          });
+      });
+  }
+
   return (
     <div className='container mt-5'>
       <div className='row'>
@@ -20,26 +52,23 @@ export function Register() {
           </div>
 
           <h2 className='fw-bold text-center py-5'>Registrate con nosotros!</h2>
-          <Form>
+          <Form onSubmit={(e) => submitRegistration(e)}>
             <div className='mb-4'>
               <Form.Label>Correo electronico</Form.Label>
               <Form.Control
                 type='email'
                 placeholder='Ingresa tu correo electronico'
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className='mb-4'>
               <Form.Label>Nombre</Form.Label>
               <Form.Control
-                type='email'
-                placeholder='Ingresa tu correo electronico'
-              />
-            </div>
-            <div className='mb-4'>
-              <Form.Label>Apellido</Form.Label>
-              <Form.Control
-                type='email'
-                placeholder='Ingresa tu correo electronico'
+                type='text'
+                placeholder='Ingresa tu usuario'
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
             <div className='mb-4'>
@@ -47,14 +76,16 @@ export function Register() {
               <Form.Control
                 type='password'
                 placeholder='Ingresa tu contraseña'
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
+            <div className='mt-4 d-grid'>
+              <Button type='submit' className='btn btn-warning'>
+                Registrarme
+              </Button>
+            </div>
           </Form>
-          <div className='mt-4 d-grid'>
-            <Button type='submit' className='btn btn-warning'>
-              Registrarme
-            </Button>
-          </div>
           <div className='my-3'>
             <span>
               Ya tienes cuenta? <Link to='/login'>Ir a login</Link>

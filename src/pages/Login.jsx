@@ -2,13 +2,42 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { Link, useNavigate } from 'react-router-dom';
 import reservorio from '../img/reservorio.png';
+import { useState } from 'react';
+import axios from 'axios';
+
+axios.defaults.xsrfCookieName = 'csrftoken';
+axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+axios.defaults.withCredentials = true;
+
+const client = axios.create({
+  baseURL: 'http://127.0.0.1:8000',
+});
 
 export function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
   const navigate = useNavigate();
 
-  const handleLoginClick = () => {
-    navigate('/home');
-  };
+  function submitLogin(e) {
+    e.preventDefault();
+    client
+      .post('/api/login/', {
+        email: email,
+        password: password,
+      })
+      .then(function (res) {
+        navigate('/home');
+      });
+  }
+
+  function submitLogout(e) {
+    e.preventDefault();
+    client.post('/api/logout/', { withCredentials: true }).then(function (res) {
+      setCurrentUser(false);
+    });
+  }
+
   return (
     <div className='container mt-5'>
       <div className='row'>
@@ -27,12 +56,14 @@ export function Login() {
           <h2 className='fw-bold text-center py-5'>
             Bienvenido a nuestra pagina web!
           </h2>
-          <Form>
+          <Form onSubmit={(e) => submitLogin(e)}>
             <div className='mb-4'>
               <Form.Label>Correo electronico</Form.Label>
               <Form.Control
                 type='email'
                 placeholder='Ingresa tu correo electronico'
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className='mb-4'>
@@ -40,7 +71,14 @@ export function Login() {
               <Form.Control
                 type='password'
                 placeholder='Ingresa tu contraseña'
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
+            </div>
+            <div className='d-grid'>
+              <Button type='submit' className='btn btn-primary'>
+                Iniciar Sesion
+              </Button>
             </div>
           </Form>
           <div className='mt-4 mr-4 form-check'>
@@ -52,15 +90,6 @@ export function Login() {
             <Form.Label className='form-check-label'>
               Mantenerme conectado
             </Form.Label>
-          </div>
-          <div className='d-grid'>
-            <Button
-              onClick={handleLoginClick}
-              type='submit'
-              className='btn btn-primary'
-            >
-              Iniciar Sesion
-            </Button>
           </div>
           <div className='my-3'>
             <span>

@@ -1,7 +1,22 @@
 import { FaHome, FaChartBar, FaBurn } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import Button from 'react-bootstrap/Button';
+import axios from 'axios';
 
 export function Layout({ children }) {
+  const navigate = useNavigate();
+  
+  const client = axios.create({
+    baseURL: 'http://127.0.0.1:8000',
+  });
+
+  function submitLogout(e) {
+    e.preventDefault();
+    client.post('/api/logout/', { withCredentials: true }).then(function (res) {
+      navigate('/login'); 
+    });
+  }
+
   return (
     <div className='main-container d-flex'>
       <div className='sidebar' id='side_nav'>
@@ -38,6 +53,9 @@ export function Layout({ children }) {
               <FaChartBar />
               Reportes
             </Link>
+          </li>
+          <li>
+            <Button onClick={submitLogout}>Cerrar Sesion</Button>
           </li>
         </ul>
         <hr className='h-color mx-2' />
